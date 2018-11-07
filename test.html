@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .container{
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rebeccapurple;
+            font-size: 0;
+            white-space: nowrap;
+        }
+        .div1{
+            position: relative;
+            display: inline-block;
+            background: red;
+            height: 100%;
+            width: 100%;
+        }
+        .div2{
+            position: relative;
+            display: inline-block;
+            z-index: 20;
+            transform: translate3d(-300px,0,0);
+            background: antiquewhite;
+            height:100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="div1"></div>
+    <div class="div2"></div>
+</div>
+</body>
+</html>
