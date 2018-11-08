@@ -67,11 +67,11 @@ export default {
       this.page = 1
       this.hasMore = true
       this.$refs.suggest.scrollTo(0, 0)
-      search(this.query, this.page, this.showSinger, this.perPage).then((res) => {
-        if (res.code === ERR_OK) {
-          this._checkMore(res.data)
-          this._genResult(res.data).then((res) => {
+      search(this.query, this.page, this.showSinger, this.perPage).then((result) => {
+        if (result.code === ERR_OK) {
+          this._genResult(result.data).then((res) => {
             this.result = res
+            this._checkMore(result.data)
           }).catch(() => {
             this.hasMore = false
           })
@@ -85,12 +85,12 @@ export default {
     searchMore () {
       if (!this.hasMore) return
       this.page = this.page + 1
-      search(this.query, this.page, this.showSinger, this.perPage).then((res) => {
-        if (res.code === ERR_OK) {
-          this._checkMore(res.data)
-          this._genResult(res.data).then((res) => {
+      search(this.query, this.page, this.showSinger, this.perPage).then((result) => {
+        if (result.code === ERR_OK) {
+          this._genResult(result.data).then((res) => {
             this.result = this.result.concat(res)
             this.$refs.suggest.finishPullUp()
+            this._checkMore(result.data)
           }).catch(() => {
             this.hasMore = false
           })
@@ -153,7 +153,7 @@ export default {
     },
     _checkMore (data) {
       const song = data.song
-      if (!song.list.length || (song.curnum * song.curpage) > song.totalnum) {
+      if (!song.list.length || (song.curnum * song.curpage) >= song.totalnum) {
         this.hasMore = false
       }
     },

@@ -37,44 +37,30 @@ import SearchBox from 'components/search-box/search-box'
 import { getHotKey } from 'api/search'
 import { ERR_OK } from 'api/config'
 import Suggest from 'components/suggest/suggest'
-import { mapActions, mapGetters } from 'vuex'
-import { playlistMixin } from 'common/js/mixin'
+import { mapActions } from 'vuex'
+import { playlistMixin, searchMixin } from 'common/js/mixin'
 import SearchList from 'components/search-list/search-list'
 import Confirm from 'components/confirm/confirm'
 import Scroll from 'components/scroll/scroll'
 
 export default {
   name: 'search',
-  mixins: [playlistMixin],
+  mixins: [playlistMixin, searchMixin],
   components: { SearchBox, Suggest, SearchList, Confirm, Scroll },
   computed: {
     shortcut () {
       return this.hotKey.concat(this.searchHistory)
-    },
-    ...mapGetters(['searchHistory'])
+    }
   },
   data () {
     return {
-      hotKey: [],
-      query: ''
+      hotKey: []
     }
   },
   mounted () {
     this._getHotKey()
   },
   methods: {
-    onQueryChange (query) {
-      this.query = query
-    },
-    addQuery (query) {
-      this.$refs.searchBox.setQuery(query)
-    },
-    blurInput () {
-      this.$refs.searchBox.blur()
-    },
-    select () {
-      this.saveSearchHistory(this.query)
-    },
     showConfirm () {
       this.$refs.confirm.show()
     },
@@ -90,7 +76,7 @@ export default {
       this.$refs.shortcutWrapper.style.bottom = this.playlist.length > 0 ? '60px' : ''
       this.$refs.shortcut.refresh()
     },
-    ...mapActions(['saveSearchHistory', 'deleteSearchHistory', 'clearSearchHistory'])
+    ...mapActions(['clearSearchHistory'])
   },
   watch: {
     query (newValue, oldValue) {

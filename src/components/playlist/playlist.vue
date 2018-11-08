@@ -4,27 +4,28 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
-            <span class="clear"><i class="icon-clear"></i></span>
+            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <span class="text">{{modeText}}</span>
+            <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
-        <scroll class="list-content" :data="sequenceList" ref="scroll">
-          <ul>
-            <li class="item" v-for="item in sequenceList" :key="item.id">
-              <i class="current"></i>
+        <scroll class="list-content" :data="sequenceList" ref="scroll" :refreshDelay="this.refreshDelay">
+          <transition-group name="list" tag="ul">
+            <li class="item" v-for="(item,index) in sequenceList" :key="item.id" @click="selectItem(item,index)"
+                ref="listItem">
+              <i class="current" :class="getCurrentIcon(item)"></i>
               <span class="text">{{item.name}}</span>
               <span class="like">
                   <i class="icon-favorite"></i>
-                </span>
-              <span class="delete">
+              </span>
+              <span class="delete" @click.stop="deleteOne(item)">
                   <i class="icon-delete"></i>
-                </span>
+              </span>
             </li>
-          </ul>
+          </transition-group>
         </scroll>
         <div class="list-operate">
-          <div class="add">
+          <div class="add" @click="addSong">
             <i class="icon-add"></i>
             <span class="text">添加歌曲到队列</span>
           </div>
@@ -33,23 +34,33 @@
           <span>关闭</span>
         </div>
       </div>
+      <confirm ref="confirm" text="是否清空播放列表" confirmBtnText="清空" @confirm="clearAll"></confirm>
+      <add-song ref="addSong"></add-song>
     </div>
   </transition>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import Scroll from 'components/scroll/scroll'
+import { playMode } from 'common/js/config'
+import { playerMixin, searchMixin } from 'common/js/mixin'
+import Confirm from 'components/confirm/confirm'
+import AddSong from 'components/add-song/add-song'
 
 export default {
   name: 'playlist',
-  components: { Scroll },
+  mixins: [playerMixin, searchMixin],
+  components: { Scroll, Confirm, AddSong },
   computed: {
-    ...mapGetters(['sequenceList'])
+    modeText () {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
+    }
   },
   data () {
     return {
-      showFlag: false
+      showFlag: false,
+      refreshDelay: 120
     }
   },
   methods: {
@@ -57,10 +68,56 @@ export default {
       this.showFlag = true
       setTimeout(() => {
         this.$refs.scroll.refresh()
+        this.scrollToCurrent(this.currentSong)
       }, 20)
     },
     hide () {
       this.showFlag = false
+    },
+    getCurrentIcon (item) {
+      if (this.currentSong.id === item.id) {
+        return 'icon-play'
+      } else {
+        return ''
+      }
+    },
+    selectItem (item, index) {
+      if (this.mode === playMode.random) {
+        index = this.playlist.findIndex((song) => {
+          return song.id === item.id
+        })
+      }
+      this.setCurrentIndex(index)
+      this.setPlayingState(true)
+    },
+    deleteOne (song) {
+      this.deleteSong(song)
+      if (!this.playlist.length) {
+        this.hide()
+      }
+    },
+    showConfirm () {
+      this.$refs.confirm.show()
+    },
+    addSong () {
+      this.$refs.addSong.show()
+    },
+    clearAll () {
+      this.deleteSongList()
+      this.hide()
+    },
+    scrollToCurrent (current) {
+      const index = this.sequenceList.findIndex((song) => current.id === song.id)
+      this.$refs.scroll.scrollToElement(this.$refs.listItem[index], 300)
+    },
+    ...mapActions(['deleteSong', 'deleteSongList'])
+  },
+  watch: {
+    currentSong (newValue, oldValue) {
+      if (!this.showFlag || newValue === oldValue) {
+        return
+      }
+      this.scrollToCurrent(newValue)
     }
   }
 }
