@@ -54,7 +54,7 @@ export default {
       if (this.currentIndex === 0) {
         return !this.favoriteList.length
       } else {
-        return !this.playlist.length
+        return !this.playHistory.length
       }
     },
     noResultDesc () {
