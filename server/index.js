@@ -8,6 +8,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use('/api', api)
+app.use(express.static('../dist'))
 
 app.listen(PROT, function () {
   console.log('server is running at' + PROT)

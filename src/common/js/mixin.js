@@ -30,7 +30,10 @@ export const playerMixin = {
     iconMode () {
       return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
     },
-    ...mapGetters(['sequenceList', 'currentSong', 'mode', 'playlist'])
+    favoriteIcon () {
+      return this.getFavoriteIcon(this.currentSong)
+    },
+    ...mapGetters(['sequenceList', 'currentSong', 'mode', 'playlist', 'favoriteList'])
   },
   methods: {
     changeMode () {
@@ -49,12 +52,30 @@ export const playerMixin = {
       const index = list.findIndex((item) => item.id === this.currentSong.id)
       this.setCurrentIndex(index)
     },
+    getFavoriteIcon (song) {
+      if (this.isFavorite(song)) {
+        return 'icon-favorite'
+      } else {
+        return 'icon-not-favorite'
+      }
+    },
+    toggleFavorite (song) {
+      if (this.isFavorite(song)) {
+        this.deleteFavoriteList(song)
+      } else {
+        this.saveFavoriteList(song)
+      }
+    },
+    isFavorite (song) {
+      return this.favoriteList.findIndex((item) => item.id === song.id) > -1
+    },
     ...mapMutations({
       setCurrentIndex: types.SET_CURRENT_INDEX,
       setPlayMode: types.SET_PLAY_MODE,
       setPlaylist: types.SET_PLAYLIST,
       setPlayingState: types.SET_PLAYING_STATE
-    })
+    }),
+    ...mapActions(['saveFavoriteList', 'deleteFavoriteList'])
   }
 }
 

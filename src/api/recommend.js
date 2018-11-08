@@ -15,7 +15,7 @@ export function getRecommend () {
 }
 
 export function getDiscList (pageIndex = 0) {
-  const url = debug ? '/api/getDistList' : ''
+  const url = debug ? '/api/getDistList' : '/api/getDistList'
   const data = Object.assign({}, commonParams, {
     platform: 'yqq',
     hostUin: 0,
@@ -36,7 +36,7 @@ export function getDiscList (pageIndex = 0) {
 }
 
 export function getSongList (disstid) {
-  const url = debug ? '/api/getCdInfo' : 'http://ustbhuangyi.com/music/api/getCdInfo'
+  const url = debug ? '/api/getCdInfo' : '/api/getCdInfo'
   const data = Object.assign({}, commonParams, {
     disstid,
     type: 1,
